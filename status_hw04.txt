@@ -1,0 +1,48 @@
+Please fill in answers to the questions below:
+
+
+1. What's your name?
+Sanjana Dutt
+
+
+2. What hostname did you deploy your app to?
+hw04.sanjanawebdev.xyz
+
+
+3. What's the URL of your git for this assignment?
+https://github.com/sanjdutt/cs4550-hw04.git
+
+4. How much of the functionality did you complete?
+
+I wrote code for all parts of the assignment, but I kept running into errors. 
+Palindrome works successfully 
+Factor and calc are somewhat working with a few bugs 
+
+
+5. Did you successfully deploy? If not, what's broken?
+
+I tried my best and followed all the instructions in lecture, but it just would not work ): I worked on this assignment for many, many hours but many parts were unclear.
+Returning and printing the answer was not working. 
+I attended lecture and took notes and deploying, but even then I had so many issues.
+
+
+6. How comfortable do you feel with Elixir now?
+Not that comfortable; I still do not understand some parts. 
+I do not understand the syntax of Elixir and what is "allowed". 
+
+
+7. Which parts of this assignment did you have trouble with, if any?
+
+I had trouble with calc as I could not understand the errors I was getting. 
+I kept getting argument errors and would try lots of different things to fix it, but nothing seemed to work. I also had trouble deploying the assignment. 
+
+
+And here's a list of tasks for grading comments. Just leave this here:
+ - Task 1
+ - Task 2
+ - Task 3
+ - Task 4
+ - Task 5
+ - Task 6
+ - Task 7
+ - Task 8
