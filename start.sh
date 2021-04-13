@@ -7,10 +7,11 @@
 #	exit
 #fi
 
+# TODO: Enable this script by removing the above. DONE
 
 export SECRET_KEY_BASE=W68eso5YQOlbtvSNUR50N/HDWj6IaEhAwMR3LtzuBEQAefwYVbX84bvoTA7XtiGi
 export MIX_ENV=prod
-export PORT=4790
+export PORT=4900
 
 echo "Stopping old copy of app, if any..."
 
@@ -20,5 +21,5 @@ echo "Starting app..."
 
 _build/prod/rel/practice/bin/practice start
 
-
-mv hw04.service /etc/systemd/system
+# TODO: Add a systemd service file
+#       to start your app on system boot. DONE

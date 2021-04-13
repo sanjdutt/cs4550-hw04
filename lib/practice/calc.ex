@@ -1,99 +1,127 @@
 defmodule Practice.Calc do
-  def parse_float(text) do
-    {num, _} = Float.parse(text)
-    num
-  end
 
-  def calc(expr) do
-    arr = String.split(expr)
-    tokens = tagTokens(arr)
-    postfix = algorithm(tokens, [], [])
-    calcAns = readExpr(postfix, [])
-    calcAns
-  end
-
-  def tagTokens(arr) do 
-    Enum.map(arr, fn x -> 
-    case x do 
-      "*" -> {:op, "*"}
-      "/" -> {:op, "/"}
-      "+" -> {:op, "+"}
-      "-" -> {:op, "-"}
-      _ -> {:num, parse_float(x)}
+    def eval(expr) do
+        expr
+        |>String.split(~r/()[\+|)|\(|\-|\*|\/|^|!|]()/,
+                trim: true, include_captures: true)
+        |> Enum.map(fn(x) -> String.trim(x) end)
+        |> Enum.map(fn(x) -> if Integer.parse(x) == :error
+				 do x
+                             else 
+				 Integer.parse(x)
+                                 |> elem(0) end end)
+        |> convertToPostfix([], [], -1)
+        |> calculate([], -1, nil)
+ 
     end
-    end)
-  end
-
-  def algorithm(tokens, outstack, opstack) do 
-      if length(tokens) > 0 do
-        element = hd tokens
-        case element do 
-           {:num, x} -> outstack ++ [x] 
-           {:op, x} ->
-             if length(opstack) == 0 do
-                opstack ++ [x]
-             else
-               top = hd opstack 
-               rank = checkrank(x) - checkrank(top)
-               case rank do
-                1 -> opstack = [x] ++ opstack
-                0 -> outstack ++ [top]
-                     opstack = tl opstack
-                     opstack ++ [x]
- 	        -1 -> opstack ++ [top]
-   		      opstack = tl opstack
-                      algorithm(tokens, outstack, opstack)
-                _-> nil
+ 
+    def pop(stack, top, popped) do
+        if not isEmpty(top) do
+            top = top - 1
+            popped = List.last(stack)
+            stack = Enum.drop(stack, -1)
+            {stack,top,popped}
+        else
+            {stack,top,nil}
+        end
+    end
+ 
+    def push(expr, stack, top) do
+        top = top + 1
+        stack = List.insert_at(stack, -1, expr)
+        {stack,top}
+    end
+ 
+    def isEmpty(top) do
+        if top == -1 do
+            true
+        else
+            false
+        end
+    end
+ 
+    def notGreater(expr, stack) do
+        if (expr == "*" or expr == "/") and (peek(stack) == "+" or peek(stack) == "-") do
+            false
+        else
+            true
+        end
+    end
+ 
+    def peek(stack) do
+        List.last(stack)
+    end
+ 
+    def encounteredOperator(expr, out, stack, top, popped) do
+        if not isEmpty(top) and notGreater(expr, stack) do
+            {stack,top,popped} = pop(stack, top, popped)
+            out = List.insert_at(out, -1, popped)
+            encounteredOperator(expr, out, stack, top, nil)
+        else
+            {out, stack, top}
+        end
+    end
+ 
+    def popStack(out, stack, top, popped) do
+        if not isEmpty(top) do
+            {stack,top,popped} = pop(stack, top, popped)
+            out = List.insert_at(out, -1, popped)
+            popStack(out, stack, top, nil)
+        else
+            out
+        end
+    end
+ 
+    def calculate(out, stack, top, popped) do
+        {curr,rest} = List.pop_at(out, 0)
+        if curr != nil do
+            cond do
+                curr == "+" -> {stack,top,popped} = pop(stack, top, nil)
+                                var1 = popped
+                                {stack,top,popped} = pop(stack, top, nil)
+                                var2 = popped
+                                {stack, top} = push(var2+var1, stack, top)
+                                calculate(rest, stack, top, nil)
+                curr == "-" -> {stack,top,popped} = pop(stack, top, nil)
+                                var1 = popped
+                                {stack,top,popped} = pop(stack, top, nil)
+                                var2 = popped
+                                {stack, top} = push(var2-var1, stack, top)
+                                calculate(rest, stack, top, nil)
+                curr == "*" -> {stack,top,popped} = pop(stack, top, nil)
+                                var1 = popped
+                                {stack,top,popped} = pop(stack, top, nil)
+                                var2 = popped
+                                {stack, top} = push(var2*var1, stack, top)
+                                calculate(rest, stack, top, nil)
+                curr == "/" -> {stack,top,popped} = pop(stack, top, nil)
+                                var1 = popped
+                                {stack,top,popped} = pop(stack, top, nil)
+                                var2 = popped
+                                {stack, top} = push(var2/var1, stack, top)
+                                calculate(rest, stack, top, nil)
+                true -> {stack, top} = push(curr, stack, top)
+                        calculate(rest, stack, top, nil)
+            end
+        else
+            {stack,top,popped} = pop(stack, top, nil)
+            popped
+        end
+    end
+ 
+    def convertToPostfix(expr, out, stack, top) do
+        {curr,rest} = List.pop_at(expr, 0)
+            if curr != nil do
+                cond do
+                    curr == "+" or curr == "-" or curr == "*" or curr == "/" ->
+                                {out, stack, top} = encounteredOperator(curr, out, stack, top, nil)
+                                {stack, top} = push(curr, stack, top)
+                                convertToPostfix(rest, out, stack, top)
+                    true -> out = List.insert_at(out, -1, curr)
+                            convertToPostfix(rest, out, stack, top)
                 end
-             end
-            _ -> nil
-      end
-      tail = tl tokens
-      algorithm(tail, outstack, opstack) 
-   else
-      outstack ++ opstack
-      outstack 
-   end
-end 
-
-def checkrank(x) do 
-  rank = 0 
-  if x == "+" or x == "-" do 
-    rank = 1
-  else 
-   rank = 2
- end 
-  rank 
-end
-
-
-def readExpr(postfix, stack) do 
-  head = hd postfix
-  if head == "+" or head == "-" or head == "/" or head == "*" do 
-    num1 = hd stack
-    stack = tl stack 
-    num2 = hd stack 
-    stack = tl stack 
-    case head do 
-      "+" -> calculation = num1 + num2
-             stack = [calculation] ++ stack
-      "-" -> calculation = num1 - num2
-             stack = [calculation] ++ stack
-      "/" -> calculation = num1 / num2
-             stack = [calculation] ++ stack
-      "*" -> calculation = num1 * num2
-             stack = [calculation] ++ stack
-       _ -> nil
-   end
- else
-    stack = [head] ++ stack
-  end
-  if length(postfix) > 0 do
-     tailPost = tl postfix 
-     readExpr(tailPost, stack)
-  else 
-    ans = hd stack
-    ans 
-   end
-  end
+            else
+                popStack(out, stack, top, nil)
+            end
+    end
 end

@@ -2,7 +2,6 @@ defmodule Practice do
   @moduledoc """
   Practice keeps the contexts that define your domain
   and business logic.
-
   Contexts are also responsible for managing your data, regardless
   if it comes from the database, an external API or others.
   """
@@ -13,16 +12,16 @@ defmodule Practice do
 
   def calc(expr) do
     # This is more complex, delegate to lib/practice/calc.ex
-    Practice.Calc.calc(expr)
+    Practice.Calc.eval(expr)
   end
 
   def factor(x) do
-    Practice.Factor.factor(x)
+    # Maybe delegate this too.
+    Practice.Factor.eval(x)
   end
 
-  def palindrome?(str) do
-        rev = String.reverse(str)
-        rev === str
+  # TODO: Add a palindrome? function. DONE
+  def palindrome(x) do
+    String.reverse(x) == x
   end
- 
 end
